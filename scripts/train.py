@@ -4,6 +4,7 @@ import datetime
 import os
 import shutil
 import sys
+import future
 
 cur_path = os.path.abspath(os.path.dirname(__file__))
 root_path = os.path.split(cur_path)[0]
@@ -38,7 +39,7 @@ def parse_args():
                             'densenet121', 'densenet161', 'densenet169', 'densenet201'],
                         help='backbone name (default: vgg16)')
     parser.add_argument('--dataset', type=str, default='pascal_voc',
-                        choices=['pascal_voc', 'pascal_aug', 'ade20k', 'citys', 'sbu'],
+                        choices=['pascal_voc', 'pascal_aug', 'ade20k', 'citys', 'sbu', 'kitti'],
                         help='dataset name (default: pascal_voc)')
     parser.add_argument('--base-size', type=int, default=520,
                         help='base image size')
@@ -105,6 +106,7 @@ def parse_args():
             'ade20k': 160,
             'citys': 120,
             'sbu': 160,
+            'kitti': 120,
         }
         args.epochs = epoches[args.dataset.lower()]
     if args.lr is None:
@@ -116,6 +118,7 @@ def parse_args():
             'ade20k': 0.01,
             'citys': 0.01,
             'sbu': 0.001,
+            'kitti' : 0.01,
         }
         args.lr = lrs[args.dataset.lower()] / 8 * args.batch_size
     return args

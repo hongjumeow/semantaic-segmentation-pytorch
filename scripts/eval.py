@@ -2,6 +2,8 @@ from __future__ import print_function
 
 import os
 import sys
+import numpy as np
+from PIL import Image
 
 cur_path = os.path.abspath(os.path.dirname(__file__))
 root_path = os.path.split(cur_path)[0]
@@ -78,10 +80,36 @@ class Evaluator(object):
             if self.args.save_pred:
                 pred = torch.argmax(outputs[0], 1)
                 pred = pred.cpu().data.numpy()
-
                 predict = pred.squeeze(0)
                 mask = get_color_pallete(predict, self.args.dataset)
-                mask.save(os.path.join(outdir, os.path.splitext(filename[0])[0] + '.png'))
+
+                # image is normalized so unnormalize and Tensor2Image
+                unnormalize = transforms.Compose([
+                    transforms.Normalize([-.485/.229, -.456/.224, -.406/.225], [1/.229, 1/.224, 1/.225])
+                ])
+                img = image.cpu()[0]
+                orig = unnormalize(img)
+                orig = np.array(np.transpose((orig), [1, 2, 0])*255).astype('uint8') # Tensor2ndarray
+                original_img = Image.fromarray(orig) # ndarray2Image
+                
+                # if to contain blended img
+                containBlendedImg = True
+
+                width, height = original_img.size
+                new_height = height * 2
+                if containBlendedImg:
+                    new_height = height * 3
+                new_img = Image.new('RGB', (width, new_height))
+                new_img.paste(original_img, (0, 0))
+                new_img.paste(mask, (0, height))
+                # add blended
+                if containBlendedImg:
+                    blended = Image.blend(original_img, mask.convert('RGB'), 0.5).convert('RGB')\
+                        # original_img.mode : RGB, mask.mode: P
+                    new_img.paste(blended, (0, height * 2))
+                
+                new_img.save(os.path.join(outdir, os.path.splitext(filename[0])[0] + '.png'))
+                # mask.save(os.path.join(outdir, os.path.splitext(filename[0])[0] + '.png'))
         synchronize()
 
 

@@ -48,7 +48,7 @@ def show_prediction(img, pred, colors, background=0):
 
 def show_colorful_images(prediction, palettes):
     im = Image.fromarray(palettes[prediction.astype('uint8').squeeze()])
-    im.show()
+    # im.show()
 
 
 def save_colorful_images(prediction, filename, output_dir, palettes):
@@ -86,7 +86,7 @@ def get_color_pallete(npimg, dataset='pascal_voc'):
         out_img = Image.fromarray(npimg.astype('uint8'))
         out_img.putpalette(adepallete)
         return out_img
-    elif dataset == 'citys':
+    elif dataset == 'citys' or dataset == 'kitti':
         out_img = Image.fromarray(npimg.astype('uint8'))
         out_img.putpalette(cityspallete)
         return out_img

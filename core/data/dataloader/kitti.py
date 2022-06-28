@@ -1,4 +1,4 @@
-"""Prepare Cityscapes dataset"""
+"""Prepare KITTI dataset"""
 import os
 import torch
 import numpy as np
@@ -7,42 +7,16 @@ from PIL import Image
 from .segbase import SegmentationDataset
 
 
-class CitySegmentation(SegmentationDataset):
-    """Cityscapes Semantic Segmentation Dataset.
-
-    Parameters
-    ----------
-    root : string
-        Path to Cityscapes folder. Default is './datasets/citys'
-    split: string
-        'train', 'val' or 'test'
-    transform : callable, optional
-        A function that transforms the image
-    Examples
-    --------
-    >>> from torchvision import transforms
-    >>> import torch.utils.data as data
-    >>> # Transforms for Normalization
-    >>> input_transform = transforms.Compose([
-    >>>     transforms.ToTensor(),
-    >>>     transforms.Normalize((.485, .456, .406), (.229, .224, .225)),
-    >>> ])
-    >>> # Create Dataset
-    >>> trainset = CitySegmentation(split='train', transform=input_transform)
-    >>> # Create Training Loader
-    >>> train_data = data.DataLoader(
-    >>>     trainset, 4, shuffle=True,
-    >>>     num_workers=4)
-    """
-    BASE_DIR = 'cityscapes'
+class KITTISegmentation(SegmentationDataset):
+    BASE_DIR = 'kitti'
     NUM_CLASS = 19
 
-    def __init__(self, root='../datasets/citys', split='train', mode=None, transform=None, **kwargs):
-        super(CitySegmentation, self).__init__(root, split, mode, transform, **kwargs)
+    def __init__(self, root='../datasets/kitti', split='train', mode=None, transform=None, **kwargs):
+        super(KITTISegmentation, self).__init__(root, split, mode, transform, **kwargs)
         # self.root = os.path.join(root, self.BASE_DIR)
         
-        assert os.path.exists(self.root), "Please setup the dataset using ../datasets/cityscapes.py"
-        self.images, self.mask_paths = _get_city_pairs(self.root, self.split)
+        assert os.path.exists(self.root), "Please setup the dataset using ../datasets/kitti.py"
+        self.images, self.mask_paths = _get_kitti_pairs(self.root, self.split)
         assert (len(self.images) == len(self.mask_paths))
         if len(self.images) == 0:
             raise RuntimeError("Found 0 images in subfolders of:" + root + "\n")
@@ -96,7 +70,7 @@ class CitySegmentation(SegmentationDataset):
         return 0
 
 
-def _get_city_pairs(folder, split='train'):
+def _get_kitti_pairs(folder, split='train'):
     def get_path_pairs(img_folder, mask_folder):
         img_paths = []
         mask_paths = []
@@ -106,7 +80,7 @@ def _get_city_pairs(folder, split='train'):
                     imgpath = os.path.join(root, filename)
                     foldername = os.path.basename(os.path.dirname(imgpath))
                     maskname = filename.replace('leftImg8bit', 'gtFine_labelIds')
-                    maskpath = os.path.join(mask_folder, foldername, maskname)
+                    maskpath = os.path.join(mask_folder, maskname)
                     if os.path.isfile(imgpath) and os.path.isfile(maskpath):
                         img_paths.append(imgpath)
                         mask_paths.append(maskpath)
@@ -135,4 +109,4 @@ def _get_city_pairs(folder, split='train'):
 
 
 if __name__ == '__main__':
-    dataset = CitySegmentation()
+    dataset = KITTISegmentation()
