@@ -18,7 +18,7 @@ class BasicBlockV1b(nn.Module):
     expansion = 1
 
     def __init__(self, inplanes, planes, stride=1, dilation=1, downsample=None,
-                 previous_dilation=1, norm_layer=nn.BatchNorm2d):
+                 previous_dilation=1, norm_layer=nn.BatchNorm2d, **kwargs):
         super(BasicBlockV1b, self).__init__()
         self.conv1 = nn.Conv2d(inplanes, planes, 3, stride,
                                dilation, dilation, bias=False)
@@ -92,7 +92,7 @@ class BottleneckV1b(nn.Module):
 class ResNetV1b(nn.Module):
 
     def __init__(self, block, layers, num_classes=1000, dilated=True, deep_stem=False,
-                 zero_init_residual=False, norm_layer=nn.BatchNorm2d):
+                 zero_init_residual=False, norm_layer=nn.BatchNorm2d, **kwargs):
         self.inplanes = 128 if deep_stem else 64
         super(ResNetV1b, self).__init__()
         if deep_stem:
