@@ -89,8 +89,8 @@ class Evaluator(object):
                 ])
                 img = image.cpu()[0]
                 orig = unnormalize(img)
-                orig = np.array(np.transpose((orig), [1, 2, 0])*255).astype('uint8') # Tensor2ndarray
-                original_img = Image.fromarray(orig) # ndarray2Image
+                orig = (np.transpose((orig), [1, 2, 0])*255).astype('uint8') # Tensor2nparray
+                original_img = Image.fromarray(orig) # nparray2Image
                 
                 # if to contain blended img
                 containBlendedImg = True
