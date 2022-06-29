@@ -54,7 +54,11 @@ class SegmentationMetric(object):
         """
         pixAcc = 1.0 * self.total_correct / (2.220446049250313e-16 + self.total_label)  # remove np.spacing(1)
         IoU = 1.0 * self.total_inter / (2.220446049250313e-16 + self.total_union)
-        mIoU = IoU.mean().item()
+        mIoU = IoU.mean().item() # get mIoU not per class but mean it all
+
+        for i in range(len(IoU)):
+            print('%d th label\'s IoU : %s' % (i, IoU[i].item()))
+
         return pixAcc, mIoU
 
     def reset(self):
