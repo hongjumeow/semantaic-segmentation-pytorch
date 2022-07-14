@@ -59,6 +59,7 @@ def get_fcn(dataset='pascal_voc', backbone='resnet50', pretrained=False, root='~
         'ade20k': 'ade',
         'coco': 'coco',
         'citys': 'citys',
+        'kitti': 'kitti',
     }
     from ..data.dataloader import datasets
     model = FCN(datasets[dataset].NUM_CLASS, backbone=backbone, pretrained_base=pretrained_base, **kwargs)
