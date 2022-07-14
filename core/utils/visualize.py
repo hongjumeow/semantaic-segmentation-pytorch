@@ -86,9 +86,13 @@ def get_color_pallete(npimg, dataset='pascal_voc'):
         out_img = Image.fromarray(npimg.astype('uint8'))
         out_img.putpalette(adepallete)
         return out_img
-    elif dataset == 'citys' or dataset == 'kitti':
+    elif dataset == 'citys':
         out_img = Image.fromarray(npimg.astype('uint8'))
         out_img.putpalette(cityspallete)
+        return out_img
+    elif dataset == 'kitti':
+        out_img = Image.fromarray(npimg.astype('uint8'))
+        out_img.putpalette(hongspallete)
         return out_img
     out_img = Image.fromarray(npimg.astype('uint8'))
     out_img.putpalette(vocpallete)
@@ -155,4 +159,25 @@ cityspallete = [
     0, 80, 100, # train
     0, 0, 230, # motorcycle
     119, 11, 32, # bicycle
+]
+
+hongspallete = [
+    128, 64, 128, #road 7
+    70, 70, 70, # building 11
+    153, 153, 153, # pole 17
+    250, 170, 30, # traffic light 19
+    220, 220, 0, # traffic sign 20
+    107, 142, 35, # vegetation 21
+    152, 251, 152, # terrain 22
+    70, 130, 180, # sky 23
+    220, 20, 60, # person 24
+    255, 0, 0, # rider 25
+    0, 0, 142, # car 26
+    0, 0, 70, # truck 27
+    0, 60, 100, # bus 28
+    0, 80, 100, # train 31
+    0, 0, 230, # motorcycle 32
+    119, 11, 32, # bicycle 33
+    80, 80, 80, # Misc 34
+    0, 0, 0, # Undefined 35
 ]
