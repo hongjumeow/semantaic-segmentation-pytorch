@@ -23,6 +23,28 @@ from core.utils.distributed import *
 from core.utils.logger import setup_logger
 from core.utils.lr_scheduler import WarmupPolyLR
 from core.utils.score import SegmentationMetric
+from torch.utils.tensorboard import SummaryWriter
+
+hongspallete = [
+    'road',
+    'building',
+    'pole',
+    'traffic light',
+    'traffic sign',
+    'vegetation',
+    'terrain',
+    'sky',
+    'person',
+    'rider',
+    'car',
+    'truck',
+    'bus',
+    'train',
+    'motorcycle',
+    'bicycle',
+    'Misc',
+    'Undefined',
+]
 
 
 def parse_args():
@@ -118,7 +140,7 @@ def parse_args():
             'ade20k': 0.01,
             'citys': 0.01,
             'sbu': 0.001,
-            'kitti' : 0.01,
+            'kitti' : 0.001,
         }
         args.lr = lrs[args.dataset.lower()] / 8 * args.batch_size
     return args
@@ -132,7 +154,7 @@ class Trainer(object):
         # image transform
         input_transform = transforms.Compose([
             transforms.ToTensor(),
-            transforms.Normalize([.485, .456, .406], [.229, .224, .225]),
+            transforms.Normalize([.485, .456, .406], [.229, .224, .225]), # nomalize by imagenet
         ])
         # dataset and dataloader
         data_kwargs = {'transform': input_transform, 'base_size': args.base_size, 'crop_size': args.crop_size}
@@ -201,6 +223,8 @@ class Trainer(object):
 
         self.best_pred = 0.0
 
+        self.summary = SummaryWriter('../runs')
+
     def train(self):
         save_to_disk = get_rank() == 0
         epochs, max_iters = self.args.epochs, self.args.max_iters
@@ -238,6 +262,7 @@ class Trainer(object):
                     "Iters: {:d}/{:d} || Lr: {:.6f} || Loss: {:.4f} || Cost Time: {} || Estimated Time: {}".format(
                         iteration, max_iters, self.optimizer.param_groups[0]['lr'], losses_reduced.item(),
                         str(datetime.timedelta(seconds=int(time.time() - start_time))), eta_string))
+                self.summary.add_scalar('loss', losses_reduced.item(), iteration)
 
             if iteration % save_per_iters == 0 and save_to_disk:
                 save_checkpoint(self.model, self.args, is_best=False)
@@ -270,10 +295,14 @@ class Trainer(object):
             with torch.no_grad():
                 outputs = model(image)
             self.metric.update(outputs[0], target)
-            pixAcc, mIoU = self.metric.get()
-            logger.info("Sample: {:d}, Validation pixAcc: {:.3f}, mIoU: {:.3f}".format(i + 1, pixAcc, mIoU))
+            pixAcc, IoU = self.metric.get()
+            logger.info('-------------------mIoU for each classes-------------------')
+            for i in range(len(IoU)):
+                logger.info('%s\'s mIoU : %s' % (hongspallete[i], IoU[i].item()))
+            logger.info('-----------------------------------------------------------')
+            logger.info("Sample: {:d}, Validation pixAcc: {:.3f}, mIoU: {:.3f}".format(i + 1, pixAcc, IoU.mean().item()))
 
-        new_pred = (pixAcc + mIoU) / 2
+        new_pred = (pixAcc + IoU.mean().item()) / 2
         if new_pred > self.best_pred:
             is_best = True
             self.best_pred = new_pred
