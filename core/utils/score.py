@@ -5,29 +5,6 @@ import numpy as np
 __all__ = ['SegmentationMetric', 'batch_pix_accuracy', 'batch_intersection_union',
            'pixelAccuracy', 'intersectionAndUnion', 'hist_info', 'compute_score']
 
-
-cityscapes_labels = [
-    'road',
-    'sidewalk',
-    'building',
-    'wall',
-    'fence',
-    'pole',
-    'traffic light',
-    'traffic sign',
-    'vegetation',
-    'terrain',
-    'sky',
-    'person',
-    'rider',
-    'car',
-    'truck',
-    'bus',
-    'train',
-    'motorcycle',
-    'bicycle',
-]
-
 class SegmentationMetric(object):
     """Computes pixAcc and mIoU metric scores
     """
@@ -76,14 +53,9 @@ class SegmentationMetric(object):
         """
         pixAcc = 1.0 * self.total_correct / (2.220446049250313e-16 + self.total_label)  # remove np.spacing(1)
         IoU = 1.0 * self.total_inter / (2.220446049250313e-16 + self.total_union)
-        mIoU = IoU.mean().item()
+        # mIoU = IoU.mean().item()
 
-        print('\n-------------------mIoU for each classes-------------------')
-        for i in range(len(IoU)):
-            print('%s\'s mIoU : %s' % (cityscapes_labels[i], IoU[i].item()))
-        print('-----------------------------------------------------------\n')
-
-        return pixAcc, mIoU
+        return pixAcc, IoU
 
     def reset(self):
         """Resets the internal evaluation result to initial state."""
