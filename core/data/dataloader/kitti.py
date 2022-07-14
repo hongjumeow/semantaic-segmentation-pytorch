@@ -9,7 +9,7 @@ from .segbase import SegmentationDataset
 
 class KITTISegmentation(SegmentationDataset):
     BASE_DIR = 'kitti'
-    NUM_CLASS = 19
+    NUM_CLASS = 18
 
     def __init__(self, root='../datasets/kitti', split='train', mode=None, transform=None, **kwargs):
         super(KITTISegmentation, self).__init__(root, split, mode, transform, **kwargs)
@@ -20,14 +20,16 @@ class KITTISegmentation(SegmentationDataset):
         assert (len(self.images) == len(self.mask_paths))
         if len(self.images) == 0:
             raise RuntimeError("Found 0 images in subfolders of:" + root + "\n")
-        self.valid_classes = [7, 8, 11, 12, 13, 17, 19, 20, 21, 22,
-                              23, 24, 25, 26, 27, 28, 31, 32, 33]
+        # self.valid_classes = [7, 8, 11, 12, 13, 17, 19, 20, 21, 22,
+        #                       23, 24, 25, 26, 27, 28, 31, 32, 33]
+        self.valid_classes = [7, 11, 17, 19, 20, 21, 22, 23, 24, 25, 26,
+                                27, 28, 31, 32, 33, 34, 35]
         self._key = np.array([-1, -1, -1, -1, -1, -1,
-                              -1, -1, 0, 1, -1, -1,
-                              2, 3, 4, -1, -1, -1,
-                              5, -1, 6, 7, 8, 9,
-                              10, 11, 12, 13, 14, 15,
-                              -1, -1, 16, 17, 18])
+                              -1, -1, 0, -1, -1, -1,
+                              1, -1, -1, -1, -1, -1,
+                              2, -1, 3, 4, 5, 6,
+                              7, 8, 9, 10, 11, 12,
+                              -1, -1, 13, 14, 15, 16, 17])
         self._mapping = np.array(range(-1, len(self._key) - 1)).astype('int32')
 
     def _class_to_index(self, mask):
@@ -56,7 +58,7 @@ class KITTISegmentation(SegmentationDataset):
         # general resize, normalize and toTensor
         if self.transform is not None:
             img = self.transform(img)
-        return img, mask, os.path.basename(self.images[index])
+        return img, mask, os.path.basename(self.images[index]) #img, mask to nparray
 
     def _mask_transform(self, mask):
         target = self._class_to_index(np.array(mask).astype('int32'))
