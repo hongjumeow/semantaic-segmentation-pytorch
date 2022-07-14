@@ -23,6 +23,7 @@ from core.utils.logger import setup_logger
 from core.utils.distributed import synchronize, get_rank, make_data_sampler, make_batch_data_sampler
 
 from train import parse_args
+from train import hongspallete
 
 
 class Evaluator(object):
@@ -73,7 +74,14 @@ class Evaluator(object):
             with torch.no_grad():
                 outputs = model(image)
             self.metric.update(outputs[0], target)
-            pixAcc, mIoU = self.metric.get()
+            pixAcc, IoU = self.metric.get()
+
+            logger.info('-------------------mIoU for each classes-------------------')
+            for i in range(len(IoU)):
+                logger.info('%s\'s mIoU : %s' % (hongspallete[i], IoU[i].item()))
+            logger.info('-----------------------------------------------------------')
+
+            mIoU = IoU.mean().item()
             logger.info("Sample: {:d}, validation pixAcc: {:.3f}, mIoU: {:.3f}".format(
                 i + 1, pixAcc * 100, mIoU * 100))
 
